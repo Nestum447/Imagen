@@ -1,4 +1,11 @@
+# Streamlit para la interfaz web
 streamlit
+
+# PyTorch para modelos de machine learning
 torch
+
+# Torchvision para procesamiento de imágenes y modelos preentrenados
 torchvision
+
+# Pillow para manipulación de imágenes
 pillow
