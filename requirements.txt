@@ -1,1 +1,1 @@
-streamlit
+streamlit torch torchvision pillow
