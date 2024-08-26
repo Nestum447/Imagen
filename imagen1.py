@@ -1,7 +1,8 @@
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageEnhance, ImageFilter
 import torch
 from torchvision import models, transforms
+import numpy as np
 
 # Título de la aplicación
 st.title("Aplicación de Estilo Artístico")
@@ -13,8 +14,22 @@ if uploaded_file is not None:
     # Cargar la imagen
     image = Image.open(uploaded_file)
 
-    # Mostrar la imagen original
-    st.image(image, caption="Imagen original", use_column_width=True)
+    # Ajustes de brillo y contraste
+    brightness = st.slider('Brillo', 0.0, 2.0, 1.0)
+    contrast = st.slider('Contraste', 0.0, 2.0, 1.0)
+    enhancer = ImageEnhance.Brightness(image)
+    image = enhancer.enhance(brightness)
+    enhancer = ImageEnhance.Contrast(image)
+    image = enhancer.enhance(contrast)
+
+    # Opción para aplicar un filtro
+    filter_option = st.selectbox('Selecciona un filtro', ['Ninguno', 'Desenfoque', 'Bordes'])
+    if filter_option == 'Desenfoque':
+        image = image.filter(ImageFilter.BLUR)
+    elif filter_option == 'Bordes':
+        image = image.filter(ImageFilter.FIND_EDGES)
+
+    st.image(image, caption="Imagen ajustada", use_column_width=True)
 
     # Preprocesar la imagen
     preprocess = transforms.Compose([
@@ -22,7 +37,6 @@ if uploaded_file is not None:
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
-
     input_tensor = preprocess(image)
     input_batch = input_tensor.unsqueeze(0)  # Crear un batch de una imagen
 
@@ -41,16 +55,9 @@ if uploaded_file is not None:
 
     # Convertir la salida de vuelta a una imagen
     unloader = transforms.ToPILImage()
-
-    # Verificar la forma del tensor de salida
     output_shape = output.squeeze(0).shape
-    print(f"Output shape: {output_shape}")
-
-    # Si tiene más de 3 canales, solo seleccionar los primeros 3
     if output_shape[0] > 3:
         output = output[:, :3, :, :]
-
-    # Convertir a imagen
     image_output = unloader(output.squeeze(0).cpu())
 
     # Mostrar la imagen procesada
