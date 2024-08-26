@@ -41,7 +41,20 @@ if uploaded_file is not None:
 
     # Convertir la salida de vuelta a una imagen
     unloader = transforms.ToPILImage()
-    image_output = unloader(output.squeeze(0).cpu())
+    # Convertir la salida de vuelta a una imagen
+unloader = transforms.ToPILImage()
+
+# Verificar la forma del tensor de salida
+output_shape = output.squeeze(0).shape
+print(f"Output shape: {output_shape}")
+
+# Si tiene más de 3 canales, solo seleccionar los primeros 3
+if output_shape[0] > 3:
+    output = output[:, :3, :, :]
+
+# Convertir a imagen
+image_output = unloader(output.squeeze(0).cpu())
+
 
     # Mostrar la imagen procesada
     st.image(image_output, caption="Imagen con estilo aplicado", use_column_width=True)
